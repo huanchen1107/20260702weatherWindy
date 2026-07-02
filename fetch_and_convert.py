@@ -86,9 +86,22 @@ def load_env(env_path=".env"):
                     value = value.strip().strip('"').strip("'")
                     os.environ[key] = value
 
+def load_token_from_db(db_path="token.db"):
+    if os.path.exists(db_path):
+        try:
+            conn = sqlite3.connect(db_path)
+            cursor = conn.execute("SELECT key, value FROM secrets")
+            for key, value in cursor.fetchall():
+                if key not in os.environ:
+                    os.environ[key] = value
+            conn.close()
+        except Exception as e:
+            print(f"Warning: Failed to load token.db: {e}")
+
 def main():
-    # Load API token from environment / .env file
+    # Load API token from environment / .env file / token.db
     load_env()
+    load_token_from_db()
     token = os.environ.get("CWA_API_TOKEN")
     if not token:
         print("Error: CWA_API_TOKEN not found in environment variables or .env file.")

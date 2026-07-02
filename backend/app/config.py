@@ -1,4 +1,5 @@
 import os
+import sqlite3
 from pathlib import Path
 
 def load_env(env_path=None):
@@ -27,8 +28,30 @@ def load_env(env_path=None):
         except Exception as e:
             print(f"Warning: Failed to load .env file from {env_path}: {e}")
 
+def load_token_from_db(db_path=None):
+    if db_path is None:
+        start_dir = Path(__file__).resolve().parent
+        for _ in range(4):
+            test_path = start_dir / "token.db"
+            if test_path.exists():
+                db_path = test_path
+                break
+            start_dir = start_dir.parent
+
+    if db_path and os.path.exists(db_path):
+        try:
+            conn = sqlite3.connect(str(db_path))
+            cursor = conn.execute("SELECT key, value FROM secrets")
+            for key, value in cursor.fetchall():
+                if key not in os.environ:
+                    os.environ[key] = value
+            conn.close()
+        except Exception as e:
+            print(f"Warning: Failed to load token.db from {db_path}: {e}")
+
 # Load environment variables on import
 load_env()
+load_token_from_db()
 
 # App Configuration Settings
 CWA_API_TOKEN = os.environ.get("CWA_API_TOKEN", "")

@@ -200,12 +200,18 @@ def refresh_cache() -> dict:
 
 def get_latest_stations() -> dict:
     """
-    Returns latest parsed stations. Fetches from CWA API if cache is empty.
+    Returns latest parsed stations. Fetches from CWA API if cache is empty or stale.
     """
+    global _last_updated
     with _cache_lock:
         is_empty = len(_cached_stations) == 0
+        is_stale = False
+        if _last_updated:
+            age = (datetime.now(timezone.utc) - _last_updated).total_seconds()
+            if age > config.CACHE_TTL:
+                is_stale = True
         
-    if is_empty:
+    if is_empty or is_stale:
         refresh_cache()
         
     with _cache_lock:
