@@ -1,0 +1,23 @@
+# API Credentials and Environment
+.env
+
+# SQLite Database and Data exports
+*.db
+*.csv
+*.json
+
+# Python caches and virtual environments
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+venv/
+.venv/
+env/
+
+# IDE/Editor metadata
+.vscode/
+.idea/
+.gemini/
+.system_generated/
